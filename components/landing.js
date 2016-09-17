@@ -20,10 +20,11 @@ import SignUpView from './SignUpView.js';
 // onPress={this.createUser.bind(this)}
 
 const config = {
-  apiKey: "AIzaSyBJgYAr2jxFzXeAp6EhhX_oxFO6B2zveXo",
-  authDomain: "divvie-e4d2c.firebaseapp.com",
-  databaseURL: "https://divvie-e4d2c.firebaseio.com",
-  storageBucket: "divvie-e4d2c.appspot.com",
+  apiKey: "AIzaSyCfYIJdj5HmK00UPQxdRMGd9TzmMezJaZc",
+  authDomain: "autosplit-80be3.firebaseapp.com",
+  databaseURL: "https://autosplit-80be3.firebaseio.com",
+  storageBucket: "autosplit-80be3.appspot.com",
+  messagingSenderId: "555416472720"
 };
 
 export default class LandingPage extends Component {
