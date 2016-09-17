@@ -15,32 +15,30 @@ import {
 } from 'react-native';
 
 import MaterialButton from './MaterialButton.js';
+import CreatePaymentView from './CreatePaymentView.js'
 
 export default class SignUpView extends Component {
 	createUser() {
-		console.log('creating', this.state)
 		this.props.firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
 		.then((res) => {
 			const currentUser = this.props.firebase.auth().currentUser;
       return this.props.firebase.database().ref('users/' + currentUser.uid).set({
-        username: this.state.username,
         email: this.state.email,
         firstName: this.state.firstName,
         lastName: this.state.lastName,
         name: `${this.state.firstName} ${this.state.lastName}`
       });
 		})
+		.then((res) => {
+			this.props.navigator.push({name: 'CreatePaymentView', component: CreatePaymentView});
+		})
+		.catch((err) => {
+			console.error('ruh roh...', err);
+		});
 	}
 	render() {
     return (
     	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
-	        <BetterTextInput 
-	        	ref='username' 
-	        	onSubmitEditing={ () => this.refs.email.focus() }
-	        	onChangeText={(username) => this.setState({username})} 
-	        	placeholder='Username'
-	        	autoCapitalize='none'
-	        />
 	        <BetterTextInput 
 	        	ref='email'
 	        	onSubmitEditing={ () => this.refs.password.focus() }
@@ -90,6 +88,7 @@ class BetterTextInput extends TextInput {
 				secureTextEntry={this.props.secureTextEntry || false}
 				onSubmitEditing={this.props.onSubmitEditing}
 				autoCapitalize={this.props.autoCapitalize || 'words'}
+				keyboardType={this.props.keyboardType || 'default'}
 			/>
 		);
 	}
