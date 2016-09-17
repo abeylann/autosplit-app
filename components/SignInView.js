@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 import MaterialButton from './MaterialButton.js';
-import SignInView from './SignInView.js';
 
 // import SignUpView from './signup.js';
 // import SignInView from './signin.js';
