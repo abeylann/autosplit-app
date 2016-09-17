@@ -17,7 +17,7 @@ export default class MaterialButton extends Component {
 	render() {
 		return (
 			<MKButton
-			  backgroundColor={MKColor.Teal}
+			  backgroundColor={this.props.color || '#1565C0'}
 			  shadowRadius={5}
 			  shadowOffset={{width:0, height:2}}
 			  shadowOpacity={.7}
@@ -29,7 +29,7 @@ export default class MaterialButton extends Component {
 			  justifyContent="center"
 			  onPress={this.props.onPressFn}
 			  >
-			  <Text pointerEvents="none" style={{color: 'white', fontSize: 22, textAlign: 'center', fontWeight: 'bold'}}>{this.props.buttonText}</Text>
+			  <Text pointerEvents="none" style={{color: 'white', fontSize: this.props.buttonFontSize || 22, textAlign: 'center'}}>{this.props.buttonText}</Text>
 			</MKButton>      
 		);
 	}

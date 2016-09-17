@@ -8,71 +8,101 @@ import {
 	Text,
 	Image,
 	TouchableHighlight,
-	AppRegistry
+	AppRegistry,
+	ScrollView,
+	DatePickerIOS,
+	TextInput
 } from 'react-native';
 
-const t = require('tcomb-form-native');
-
-const Form = t.form.Form;
-
-const Person = t.struct({
-  name: t.String,              // a required string
-  surname: t.maybe(t.String),  // an optional string
-  age: t.Number,               // a required number
-  rememberMe: t.Boolean        // a boolean
-});
+import MaterialButton from './MaterialButton.js';
 
 export default class SignUpView extends Component {
-	onPress () {
-    // call getValue() to get the values of the form
-    var value = this.refs.form.getValue();
-    if (value) { // if validation fails, value will be null
-      console.log(value); // value here is an instance of Person
-    }
-  }
-	 render() {
+	createUser() {
+		console.log('creating', this.state)
+		this.props.firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+		.then((res) => {
+			const currentUser = this.props.firebase.auth().currentUser;
+      return this.props.firebase.database().ref('users/' + currentUser.uid).set({
+        username: this.state.username,
+        email: this.state.email,
+        firstName: this.state.firstName,
+        lastName: this.state.lastName,
+        name: `${this.state.firstName} ${this.state.lastName}`
+      });
+		})
+	}
+	render() {
     return (
-      <View style={styles.container}>
-        {/* display */}
-        <Form
-          ref="form"
-          type={Person}
-          options={options}
-        />
-        <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableHighlight>
-      </View>
+    	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
+	        <BetterTextInput 
+	        	ref='username' 
+	        	onSubmitEditing={ () => this.refs.email.focus() }
+	        	onChangeText={(username) => this.setState({username})} 
+	        	placeholder='Username'
+	        	autoCapitalize='none'
+	        />
+	        <BetterTextInput 
+	        	ref='email'
+	        	onSubmitEditing={ () => this.refs.password.focus() }
+	        	onChangeText={(email) => this.setState({email})} 
+	        	placeholder='Email' 
+	        	keyboardType="email-address"
+	        	autoCapitalize='none'
+	        />
+          <BetterTextInput
+          	ref='password'
+          	onSubmitEditing={ () => this.refs.firstName.focus() }
+          	onChangeText={(password) => this.setState({password})}
+          	placeholder='Password'
+          	secureTextEntry={true}
+          />
+	        <BetterTextInput
+	        	ref='firstName'
+	        	onSubmitEditing={ () => this.refs.lastName.focus() }
+	        	onChangeText={(firstName) => this.setState({firstName})}
+	        	placeholder='First Name'
+	        />
+	        <BetterTextInput
+	        	ref='lastName'
+	        	onChangeText={(lastName) => this.setState({lastName})}
+	        	placeholder='Last Name'
+	        	returnKeyType='done'
+	        />
+	        <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 40}}>
+	        	<MaterialButton width={150} height={50} buttonText="Create Account" onPressFn={this.createUser.bind(this)} buttonFontSize={14}/>
+	        </View>
+      </ScrollView>
     );
   }
 }
 
-const options = {};
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    marginTop: 50,
-    padding: 20,
-    backgroundColor: '#ffffff',
-  },
-  title: {
-    fontSize: 30,
-    alignSelf: 'center',
-    marginBottom: 30
-  },
-  buttonText: {
-    fontSize: 18,
-    color: 'white',
-    alignSelf: 'center'
-  },
-  button: {
-    height: 36,
-    backgroundColor: '#48BBEC',
-    borderColor: '#48BBEC',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignSelf: 'stretch',
-    justifyContent: 'center'
-  }
-});
+class BetterTextInput extends TextInput {
+	render() {
+		return(
+			<TextInput 
+				style={styles.input}
+				placeholder={this.props.placeholder}
+				placeholderTextColor='#608492'
+				ref={this.props.ref}
+				returnKeyType={this.props.returnKeyType || 'next'}
+				onChangeText={this.props.onChangeText}
+				autoCorrect={this.props.autocorrect || false}
+				secureTextEntry={this.props.secureTextEntry || false}
+				onSubmitEditing={this.props.onSubmitEditing}
+				autoCapitalize={this.props.autoCapitalize || 'words'}
+			/>
+		);
+	}
+}
+
+const styles = {
+	input: {
+		backgroundColor: '#9FE2FC', 
+		height: 40,
+		marginTop: 10,
+		marginLeft: 10,
+		marginRight: 10,
+		paddingRight: 10,
+		paddingLeft: 10
+	}
+};

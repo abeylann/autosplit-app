@@ -4,6 +4,8 @@
  * @flow
  */
 
+const firebase = require('firebase');
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -22,7 +24,7 @@ class AutosplitApp extends Component {
       initialRoute={{name: 'LandingPage', component: LandingPage}}
       renderScene={(route, navigator) => {
         if(route.component) {
-          return React.createElement(route.component, {navigator});
+          return React.createElement(route.component, {navigator, firebase});
         }
       }}
       />

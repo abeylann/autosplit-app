@@ -12,21 +12,18 @@ import {
 import MaterialButton from './MaterialButton.js';
 
 import SignUpView from './SignUpView.js';
-// import SignInView from './signin.js';
-
-
-// import loginStyling from '../styles/signUpSignInFormStyling.js';
-// onPress={this.createUser.bind(this)}
 
 const config = {
-  apiKey: "AIzaSyBJgYAr2jxFzXeAp6EhhX_oxFO6B2zveXo",
-  authDomain: "divvie-e4d2c.firebaseapp.com",
-  databaseURL: "https://divvie-e4d2c.firebaseio.com",
-  storageBucket: "divvie-e4d2c.appspot.com",
+  apiKey: "AIzaSyCfYIJdj5HmK00UPQxdRMGd9TzmMezJaZc",
+  authDomain: "autosplit-80be3.firebaseapp.com",
+  databaseURL: "https://autosplit-80be3.firebaseio.com",
+  storageBucket: "autosplit-80be3.appspot.com",
+  messagingSenderId: "555416472720"
 };
 
 export default class LandingPage extends Component {
 	constructor(props) {
+		props.firebase.initializeApp(config);
 		super(props);
 	}
 	render () {
@@ -47,14 +44,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: 'column',
 		justifyContent: 'center',
-		backgroundColor: '#63A56F'
+		backgroundColor: '#72d4f8'
 	},
 	container: {
 		flex: 1,
 		flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#63A56F'
+    backgroundColor: '#72d4f8'
 	},
 	button: {
 		margin: 10
