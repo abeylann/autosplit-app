@@ -10,9 +10,13 @@ import {
 } from 'react-native';
 
 import MaterialButton from './MaterialButton.js';
-import SignInView from './SignInView.js';
 
-import SignUpView from './SignUpView.js';
+// import SignUpView from './signup.js';
+// import SignInView from './signin.js';
+
+
+// import loginStyling from '../styles/signUpSignInFormStyling.js';
+// onPress={this.createUser.bind(this)}
 
 const config = {
   apiKey: "AIzaSyCfYIJdj5HmK00UPQxdRMGd9TzmMezJaZc",
@@ -24,7 +28,6 @@ const config = {
 
 export default class LandingPage extends Component {
 	constructor(props) {
-		props.firebase.initializeApp(config);
 		super(props);
 	}
 	render () {
@@ -33,7 +36,7 @@ export default class LandingPage extends Component {
 	      <View style={styles.container}>
 	        <MaterialButton buttonText="Sign In" onPressFn={() => this.props.navigator.push({name: 'SignInView', component: SignInView})}/>
 	        <View style={{width: 20}} />
-	        <MaterialButton buttonText="Sign Up" onPressFn={() => this.props.navigator.push({name: 'SignUpView', component: SignUpView})} />
+	        <MaterialButton buttonText="Sign Up"  />
 				</View>
 			</View>
     );
@@ -45,14 +48,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: 'column',
 		justifyContent: 'center',
-		backgroundColor: '#72d4f8'
+		backgroundColor: '#63A56F'
 	},
 	container: {
 		flex: 1,
 		flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#72d4f8'
+    backgroundColor: '#63A56F'
 	},
 	button: {
 		margin: 10

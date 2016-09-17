@@ -15,7 +15,7 @@ import {
   Navigator
 } from 'react-native';
 
-import LandingPage from './components/landing.js';
+import LandingPage from './components/Landing.js';
 
 class AutosplitApp extends Component {
   render() {
