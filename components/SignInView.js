@@ -6,58 +6,90 @@ import {
 	View,
 	StyleSheet,
 	Text,
-	Image
+	Image,
+	TouchableHighlight,
+	AppRegistry,
+	ScrollView,
+	DatePickerIOS,
+	TextInput
 } from 'react-native';
 
 import MaterialButton from './MaterialButton.js';
+import CreatePaymentView from './CreatePaymentView.js'
+import CreateSubscription from './CreateSubscription.js';
 
-// import SignUpView from './signup.js';
-// import SignInView from './signin.js';
-
-
-// import loginStyling from '../styles/signUpSignInFormStyling.js';
-// onPress={this.createUser.bind(this)}
-
-const config = {
-  apiKey: "AIzaSyCfYIJdj5HmK00UPQxdRMGd9TzmMezJaZc",
-  authDomain: "autosplit-80be3.firebaseapp.com",
-  databaseURL: "https://autosplit-80be3.firebaseio.com",
-  storageBucket: "autosplit-80be3.appspot.com",
-  messagingSenderId: "555416472720"
-};
-
-export default class LandingPage extends Component {
-	constructor(props) {
-		super(props);
+export default class SignInView extends Component {
+	signInUser() {
+		this.props.firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+		.then((res) => {
+			return this.props.firebase.database().ref(`users`).once('value')
+	  })
+	  .then(res => {
+	  	const currentUserId = this.props.firebase.auth().currentUser.uid;
+			const user = res.val()[currentUserId];
+			if(user.hasOwnProperty('bankAccountToken')) {
+				this.props.navigator.push({name: 'CreateSubscription', component: CreateSubscription});
+			} else {
+				this.props.navigator.push({name: 'CreatePaymentView', component: CreatePaymentView});
+			}
+		})
+		.catch((err) => {
+			console.error('ruh roh...', err);
+		});
 	}
-	render () {
-		return (
-			<View style={styles.outerContainer}>
-	      <View style={styles.container}>
-	        <MaterialButton buttonText="Sign In" onPressFn={() => this.props.navigator.push({name: 'SignInView', component: SignInView})}/>
-	        <View style={{width: 20}} />
-	        <MaterialButton buttonText="Sign Up"  />
-				</View>
-			</View>
+	render() {
+    return (
+    	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
+	        <BetterTextInput 
+	        	ref='email'
+	        	onSubmitEditing={ () => this.refs.password.focus() }
+	        	onChangeText={(email) => this.setState({email})} 
+	        	placeholder='Email' 
+	        	keyboardType="email-address"
+	        	autoCapitalize='none'
+	        />
+          <BetterTextInput
+          	ref='password'
+          	onChangeText={(password) => this.setState({password})}
+          	placeholder='Password'
+          	secureTextEntry={true}
+          />
+	        <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 40}}>
+	        	<MaterialButton width={150} height={50} buttonText="Sign In" onPressFn={this.signInUser.bind(this)} buttonFontSize={14}/>
+	        </View>
+      </ScrollView>
     );
+  }
+}
+
+class BetterTextInput extends TextInput {
+	render() {
+		return(
+			<TextInput 
+				style={styles.input}
+				placeholder={this.props.placeholder}
+				placeholderTextColor='#608492'
+				ref={this.props.ref}
+				returnKeyType={this.props.returnKeyType || 'next'}
+				onChangeText={this.props.onChangeText}
+				autoCorrect={this.props.autocorrect || false}
+				secureTextEntry={this.props.secureTextEntry || false}
+				onSubmitEditing={this.props.onSubmitEditing}
+				autoCapitalize={this.props.autoCapitalize || 'words'}
+				keyboardType={this.props.keyboardType || 'default'}
+			/>
+		);
 	}
 }
 
-const styles = StyleSheet.create({
-	outerContainer: {
-		flex: 1,
-		flexDirection: 'column',
-		justifyContent: 'center',
-		backgroundColor: '#63A56F'
-	},
-	container: {
-		flex: 1,
-		flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#63A56F'
-	},
-	button: {
-		margin: 10
+const styles = {
+	input: {
+		backgroundColor: '#9FE2FC', 
+		height: 40,
+		marginTop: 10,
+		marginLeft: 10,
+		marginRight: 10,
+		paddingRight: 10,
+		paddingLeft: 10
 	}
-});
+};

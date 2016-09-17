@@ -11,7 +11,6 @@ import {
 
 import MaterialButton from './MaterialButton.js';
 import SignInView from './SignInView.js';
-
 import SignUpView from './SignUpView.js';
 
 const config = {
@@ -24,6 +23,7 @@ const config = {
 
 export default class LandingPage extends Component {
 	constructor(props) {
+		console.log("CHECKING IF EXISTING FIREBASE", props.firebase.apps)
 		props.firebase.initializeApp(config);
 		super(props);
 	}
@@ -33,7 +33,7 @@ export default class LandingPage extends Component {
 	      <View style={styles.container}>
 	        <MaterialButton buttonText="Sign In" onPressFn={() => this.props.navigator.push({name: 'SignInView', component: SignInView})}/>
 	        <View style={{width: 20}} />
-	        <MaterialButton buttonText="Sign Up" onPressFn={() => this.props.navigator.push({name: 'SignUpView', component: SignUpView})} />
+	        <MaterialButton buttonText="Sign Up" onPressFn={() => this.props.navigator.push({name: 'SignInView', component: SignUpView})} />
 				</View>
 			</View>
     );

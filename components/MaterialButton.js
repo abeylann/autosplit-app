@@ -20,7 +20,7 @@ export default class MaterialButton extends Component {
 			  backgroundColor={this.props.color || '#1565C0'}
 			  shadowRadius={5}
 			  shadowOffset={{width:0, height:2}}
-			  shadowOpacity={.7}
+			  shadowOpacity={.5}
 			  elevation={5}
 			  shadowColor="black"
 			  width={this.props.width || 150}
@@ -28,6 +28,8 @@ export default class MaterialButton extends Component {
 			  flexDirection="column"
 			  justifyContent="center"
 			  onPress={this.props.onPressFn}
+			  marginRight={this.props.marginRight || 0}
+			  marginLeft={this.props.marginLeft || 0}
 			  >
 			  <Text pointerEvents="none" style={{color: 'white', fontSize: this.props.buttonFontSize || 22, textAlign: 'center'}}>{this.props.buttonText}</Text>
 			</MKButton>      
