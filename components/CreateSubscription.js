@@ -28,58 +28,60 @@ export default class CreateSubscription extends Component {
 	proposeSubscription() {
 
 		let currentUser = this.props.firebase.auth().currentUser;
-        let users = [];
-        let transactions = {};
+      let users = [];
+      let transactions = {};
 
 		this.props.firebase.database().ref(`users`).once('value')
-        .then((res) => {
-    	    users = res.val();
-    	    this.state.otherUserId = Object.keys(users).find((userId) => { //not sure about returning this
-    		    return users[userId].email === this.state.otherEmail;
-    	    });
-            this.state.statusActive = true; //TODO: true during testing, need to add approvals section for before and finish flag for after
-            if (this.state.isPaying) {
-                this.state.payer = currentUser.uid;
-                this.state.recipient = this.state.otherUserId;
-            }
-            else {
-                this.state.payer = this.state.otherUserId;
-                this.state.recipient = currentUser.uid;
-            }
-            this.state.billStart = new Date(`${this.state.startDateMM}/${this.state.startDateDD}/${this.state.startDateYYYY}`);
-            delete this.state.otherUserId;
+    .then((res) => {
+	    users = res.val();
+	    this.state.otherUserId = Object.keys(users).find((userId) => { //not sure about returning this
+		    return users[userId].email === this.state.otherEmail;
+	    });
+      this.state.statusActive = true; //TODO: true during testing, need to add approvals section for before and finish flag for after
+      if (this.state.isPaying) {
+        this.state.payer = currentUser.uid;
+        this.state.recipient = this.state.otherUserId;
+      }
+      else {
+        this.state.payer = this.state.otherUserId;
+        this.state.recipient = currentUser.uid;
+      }
+      this.state.billStart = new Date(`${this.state.startDateMM}/${this.state.startDateDD}/${this.state.startDateYYYY}`);
+      delete this.state.otherUserId;
 			delete this.state.otherUser;
 			delete this.state.isPaying;
 			delete this.state.otherEmail;
 			delete this.state.startDateMM;
 			delete this.state.startDateDD;
 			delete this.state.startDateYYYY;
-            return this.props.firebase.database().ref('subscriptions').push(this.state);
-        })
-        .then((subscriptions) => {
-            if(!this.state.statusActive) {return;}
-            if(!!this.state.statusActive) {
-                let billStart = this.state.billStart;
-                for (let i = 1; i <= this.state.numTimes; i++) {
-                    let billDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
-                    let newTransaction = {
-                        billAt: billDate,
-                        subscriptionId: subscriptions.key
-                    };
-                    let key = this.props.firebase.database().ref().push().key;
-                    transactions[key] = newTransaction;
-                }
-                return this.props.firebase.database().ref('transactions').update(transactions);
-            }
-        })
-        .then((res) => {
-            console.log('success!');
-        	console.log(res);
-        })
-        .catch((ex) => {
-            console.error(ex);
-        });
-    };
+      return this.props.firebase.database().ref('subscriptions').push(this.state);
+    })
+    .then((subscriptions) => {
+      if(!this.state.statusActive) {
+      	return;
+      }
+      if(!!this.state.statusActive) {
+        let billStart = this.state.billStart;
+        for (let i = 1; i <= this.state.numTimes; i++) {
+          let billDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
+          let newTransaction = {
+              billAt: billDate,
+              subscriptionId: subscriptions.key
+          };
+          let key = this.props.firebase.database().ref().push().key;
+          transactions[key] = newTransaction;
+        }
+        return this.props.firebase.database().ref('transactions').update(transactions);
+      }
+    })
+    .then((res) => {
+      console.log('success!');
+    	console.log(res);
+    })
+    .catch((ex) => {
+        console.error(ex);
+    });
+  };
 
 	render() {
     return (

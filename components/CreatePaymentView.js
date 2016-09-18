@@ -53,13 +53,6 @@ export default class CreatePaymentView extends Component {
 	render() {
     return (
     	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
-            <BetterTextInput
-                ref = 'ccNum'
-                onSubmitEditing = {() => this.refs.routing.focus() }
-                onChangeText= {(ccNum) => this.setState({ccNum})}
-                placeholder = 'Credit Card Number'
-                keyboardType="numeric"
-            />
 	        <BetterTextInput
 	        	ref='routing'
 	        	onSubmitEditing={ () => this.refs.account.focus() }

@@ -21,15 +21,6 @@ import MaterialButton from './MaterialButton.js';
 import Subscription from './Subscription.js';
 
 export default class ViewSubscriptions extends Component {
-    getInitialState: function(){
-        return {
-            relevantSubscriptions: {
-                chronicsList: []
-            }
-        }
-    }
-
-
     componentWillMount() {
         const currentUserId = this.props.firebase.auth().currentUser.uid;
         let allUsers;
@@ -38,42 +29,47 @@ export default class ViewSubscriptions extends Component {
 
         this.props.firebase.database().ref('subscriptions').once('value')
         .then((res) => {
-            console.log('amir', res.val());
             allSubscriptions = res.val();
             return this.props.firebase.database().ref('users').once('value');
         })
         .then((users) => {
-            console.log('amir2', users.val());
             allUsers = users.val();
             Object.keys(allSubscriptions).forEach(subscription => {
         		if(allSubscriptions[subscription].payer === currentUserId || allSubscriptions[subscription].recipient === currentUserId) {
         			relevantSubscriptions.push(allSubscriptions[subscription]);
         		}
         	});
-            console.log('amir3', relevantSubscriptions)
             relevantSubscriptions.forEach((sub) => {
-                sub.payer = allUsers[sub.payer];
-        		sub.recipient = allUsers[sub.recipient];
+              sub.payerData = allUsers[sub.payer];
+      				sub.recipientData = allUsers[sub.recipient];
+      				sub.payerData.id = sub.payer;
+      				sub.recipientData.id = sub.recipient;
+      				sub.payer = sub.payerData;
+      				sub.recipient = sub.recipientData;
             });
             this.setState({ relevantSubscriptions });
         })
-        .catch((ex) => {
-            console.log(ex);
+        .catch((err) => {
+            console.error(err);
         });
     }
 
 	render() {
 
 		let subscriptions = !this.state || !this.state.relevantSubscriptions ? [] : this.state.relevantSubscriptions.map((sub, index) => {
-			return (<Subscription subscription={sub} key={index}/>);
+			return (<Subscription description={sub.description} frequencyNumber={sub.frequencyNumber} frequencyUnit={sub.frequencyUnit} firebase={this.props.firebase} amount={sub.amount} payer={sub.payer} recipient={sub.payer} key={index} isDarker={index%2===0}/>);
 		});
 
-		return
+		return (
 			<ScrollView>
+				<View style={{height: 80, backgroundColor: 'blue', justifyContent: 'center', alignItems:'center'}}>
+					<Text style={{fontSize: 20, fontColor: 'grey'}}>Your Active Subscriptions</Text>
+				</View>
 				<View>
 					{subscriptions}
 				</View>
 			</ScrollView>
+		)
   }
 }
 
