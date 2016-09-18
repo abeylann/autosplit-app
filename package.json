@@ -13,7 +13,6 @@
     "react-native-dropdown": "0.0.6",
     "react-native-form-generator": "^0.9.9",
     "react-native-material-kit": "^0.3.2",
-    "react-native-stripe": "^1.2.1",
     "tcomb-form-native": "^0.6.1"
   }
 }
