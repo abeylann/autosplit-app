@@ -14,7 +14,7 @@ import {
 	TextInput
 } from 'react-native';
 
-import CreateSubscription from './CreateSubscription.js';
+import HomeNavigation from './HomeNavigation.js';
 
 import MaterialButton from './MaterialButton.js';
 
@@ -23,6 +23,7 @@ export default class CreatePaymentView extends Component {
 		const currentUserId = this.props.firebase.auth().currentUser.uid;
 		this.props.firebase.database().ref(`users`).once('value')
     .then(res => {
+        console.log('amir', res.val());
 			const user = res.val()[currentUserId];
 			this.state.uid = currentUserId;
 			this.state.fullName = user.name;
@@ -39,7 +40,7 @@ export default class CreatePaymentView extends Component {
     })
     .then(response => {
 			if (!!response.ok) {
-				this.props.navigator.push({name: 'CreateSubscription', component: CreateSubscription});
+				this.props.navigator.push({name: 'HomeNavigation', component: HomeNavigation});
 			} else {
 				throw new Error(response.statusText);
 			}
@@ -52,18 +53,25 @@ export default class CreatePaymentView extends Component {
 	render() {
     return (
     	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
-	        <BetterTextInput 
+            <BetterTextInput
+                ref = 'ccNum'
+                onSubmitEditing = {() => this.refs.routing.focus() }
+                onChangeText= {(ccNum) => this.setState({ccNum})}
+                placeholder = 'Credit Card Number'
+                keyboardType="numeric"
+            />
+	        <BetterTextInput
 	        	ref='routing'
 	        	onSubmitEditing={ () => this.refs.account.focus() }
-	        	onChangeText={(routing) => this.setState({routing})} 
-	        	placeholder='Routing Number' 
+	        	onChangeText={(routing) => this.setState({routing})}
+	        	placeholder='Bank Routing Number'
 	        	keyboardType="numeric"
 	        />
           <BetterTextInput
           	ref='account'
           	onSubmitEditing={ () => this.refs.ssn.focus() }
           	onChangeText={(account) => this.setState({account})}
-          	placeholder='Account Number'
+          	placeholder='Bank Account Number'
           	keyboardType="numeric"
           />
           <BetterTextInput
@@ -91,7 +99,7 @@ export default class CreatePaymentView extends Component {
 class BetterTextInput extends TextInput {
 	render() {
 		return(
-			<TextInput 
+			<TextInput
 				style={styles.input}
 				placeholder={this.props.placeholder}
 				placeholderTextColor='#608492'
@@ -110,7 +118,7 @@ class BetterTextInput extends TextInput {
 
 const styles = {
 	input: {
-		backgroundColor: '#9FE2FC', 
+		backgroundColor: '#9FE2FC',
 		height: 40,
 		marginTop: 10,
 		marginLeft: 10,

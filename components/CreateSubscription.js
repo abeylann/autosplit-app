@@ -20,75 +20,72 @@ import moment from 'moment';
 import MaterialButton from './MaterialButton.js';
 
 export default class CreateSubscription extends Component {
-	state = {
+	state = { //this.setState ??
 		isPaying: true,
 		frequencyUnit: 'days'
 	};
 
 	proposeSubscription() {
-		const currentUser = this.props.firebase.auth().currentUser;
-		
-		this.props.firebase.database().ref(`users`).once('value')
-    .then(res => {
-    	const users = res.val();
 
-    	this.state.otherUserId = Object.keys(users).find((userId) => {
-    		return users[userId].email === this.state.otherEmail;
-    	});
-			if(this.state.isPaying) {
-				this.state.payer = currentUser.uid;
-				this.state.recipient = this.state.otherUserId;
-				this.state.needsApproval = false;
-				this.state.status = 'active';
-			} else {
-				this.state.recipient = currentUser.uid;
-				this.state.payer = this.state.otherUserId;
-				this.state.needsApproval = true;
-				this.state.approverId = this.state.otherUserId;
-				this.state.status = 'pending';
-			}
-			this.state.billStart = new Date(`${this.state.startDateMM}/${this.state.startDateDD}/${this.state.startDateYYYY}`)
-			delete this.state.otherUserId;
+		let currentUser = this.props.firebase.auth().currentUser;
+        let users = [];
+        let transactions = {};
+
+		this.props.firebase.database().ref(`users`).once('value')
+        .then((res) => {
+    	    users = res.val();
+    	    this.state.otherUserId = Object.keys(users).find((userId) => { //not sure about returning this
+    		    return users[userId].email === this.state.otherEmail;
+    	    });
+            this.state.statusActive = true; //TODO: true during testing, need to add approvals section for before and finish flag for after
+            if (this.state.isPaying) {
+                this.state.payer = currentUser.uid;
+                this.state.recipient = this.state.otherUserId;
+            }
+            else {
+                this.state.payer = this.state.otherUserId;
+                this.state.recipient = currentUser.uid;
+            }
+            this.state.billStart = new Date(`${this.state.startDateMM}/${this.state.startDateDD}/${this.state.startDateYYYY}`);
+            delete this.state.otherUserId;
 			delete this.state.otherUser;
 			delete this.state.isPaying;
 			delete this.state.otherEmail;
 			delete this.state.startDateMM;
 			delete this.state.startDateDD;
 			delete this.state.startDateYYYY;
-    	return this.props.firebase.database().ref('subscriptions').push(this.state);
-    })
-    .then((res) => {
-    	if(this.state.needsApproval) {
-    		return;
-    	}
-    	const transactions = {};
-    	const billStart = this.state.billStart;
-    	for(let i = 0; i<this.state.numTimes; i++) {
-    		const newBillDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
-    		const newTransaction = {
-    			billAt: newBillDate,
-    			status: 'pending',
-    			subscriptionId: res.key
-    		}
-    		const key = this.props.firebase.database().ref().push().key; //gen new key
-    		transactions[key] = newTransaction;
-    	}
-    	return this.props.firebase.database().ref('transactions').update(transactions);
-    })
-    .then(res => {
-    	console.log('success!')
-    	console.log(res)
-    })
-    .catch(err => {
-    	console.error(err)
-    })
-	}
+            return this.props.firebase.database().ref('subscriptions').push(this.state);
+        })
+        .then((subscriptions) => {
+            if(!this.state.statusActive) {return;}
+            if(!!this.state.statusActive) {
+                let billStart = this.state.billStart;
+                for (let i = 1; i <= this.state.numTimes; i++) {
+                    let billDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
+                    let newTransaction = {
+                        billAt: billDate,
+                        subscriptionId: subscriptions.key
+                    };
+                    let key = this.props.firebase.database().ref().push().key;
+                    transactions[key] = newTransaction;
+                }
+                return this.props.firebase.database().ref('transactions').update(transactions);
+            }
+        })
+        .then((res) => {
+            console.log('success!');
+        	console.log(res);
+        })
+        .catch((ex) => {
+            console.error(ex);
+        });
+    };
 
 	render() {
     return (
     	<ScrollView keyboardShouldPersistTaps={true} style={{flex: 1, backgroundColor: '#72d4f8', paddingTop: 60}} >
 	        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15}}>
-		        <MaterialButton 
+		        <MaterialButton
 		        	width={100}
 		        	height={50}
 		        	buttonText="Charge"
@@ -97,7 +94,7 @@ export default class CreateSubscription extends Component {
 		        	color={this.state && this.state.isPaying ?  'grey' : 'green'}
 		        	onPressFn={() => this.setState({isPaying: false})}
 		        />
-		        <MaterialButton 
+		        <MaterialButton
 		        	width={100}
 		        	height={50}
 		        	buttonText="Pay"
@@ -109,10 +106,10 @@ export default class CreateSubscription extends Component {
 	        </View>
 
 	        <Text>{this.state && this.state.isPaying ? 'Who do you want to pay?' : 'Who do you want to charge?'}</Text>
-	        <BetterTextInput 
+	        <BetterTextInput
 	        	ref='otherEmail'
 	        	onSubmitEditing={ () => this.refs.amount.focus() }
-	        	onChangeText={(otherEmail) => this.setState({otherEmail})} 
+	        	onChangeText={(otherEmail) => this.setState({otherEmail})}
 	        	placeholder='Enter their email address'
 	        	keyboardType='email-address'
 	        	autoCapitalize='none'
@@ -132,15 +129,15 @@ export default class CreateSubscription extends Component {
 		          <BetterTextInput
 		          	lessMargin={true}
 		          	ref='frequencyNumber'
-		          	onSubmitEditing={ () => this.refs.frequencyUnit.focus() }
 		          	onChangeText={(frequencyNumber) => this.setState({frequencyNumber})}
 		          	placeholder='#'
 		          	keyboardType='numeric'
 		          />
 	          </View>
 	          <View style={{flex: 2.5, marginTop: 10}}>
-		        	<Picker 
+		        	<Picker
 		         		selectedValue={this.state.frequencyUnit}
+                        onSubmitEditing={ () => this.refs.startDateMM.focus() }
 					  		onValueChange={(frequencyUnit) => this.setState({frequencyUnit})}>
 					  		<Picker.Item label="Days" value="days" />
 					  		<Picker.Item label="Weeks" value="weeks" />
@@ -155,7 +152,6 @@ export default class CreateSubscription extends Component {
 		          	onSubmitEditing={ () => this.refs.startDateDD.focus() }
 		          	onChangeText={(startDateMM) => this.setState({startDateMM})}
 		          	placeholder='MM'
-		          	keyboardType='numeric'
 		          />
 	          </View>
 	          <View style={{flex: 1}}>
@@ -164,7 +160,6 @@ export default class CreateSubscription extends Component {
 		          	onSubmitEditing={ () => this.refs.startDateYYYY.focus() }
 		          	onChangeText={(startDateDD) => this.setState({startDateDD})}
 		          	placeholder='DD'
-		          	keyboardType='numeric'
 		          />
 	          </View>
 	          <View style={{flex: 1}}>
@@ -173,7 +168,6 @@ export default class CreateSubscription extends Component {
 		          	onSubmitEditing={ () => this.refs.numTimes.focus() }
 		          	onChangeText={(startDateYYYY) => this.setState({startDateYYYY})}
 		          	placeholder='YYYY'
-		          	keyboardType='numeric'
 		          />
 	          </View>
           </View>
@@ -191,7 +185,7 @@ export default class CreateSubscription extends Component {
           	returnKeyType='done'
           	multiline={true}
           />
-	         
+
 	        <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 40}}>
 	        	<MaterialButton width={175} height={50} buttonText="Propose Subscription" onPressFn={this.proposeSubscription.bind(this)} buttonFontSize={14}/>
 	        </View>
@@ -205,7 +199,7 @@ export default class CreateSubscription extends Component {
 class BetterTextInput extends TextInput {
 	render() {
 		return(
-			<TextInput 
+			<TextInput
 				style={this.props.lessMargin ? styles.inputLessMargin : styles.input}
 				placeholder={this.props.placeholder}
 				placeholderTextColor='#608492'
@@ -225,7 +219,7 @@ class BetterTextInput extends TextInput {
 
 const styles = {
 	input: {
-		backgroundColor: '#9FE2FC', 
+		backgroundColor: '#9FE2FC',
 		height: 40,
 		marginTop: 10,
 		marginLeft: 20,
@@ -234,7 +228,7 @@ const styles = {
 		paddingLeft: 10
 	},
 	inputLessMargin: {
-		backgroundColor: '#9FE2FC', 
+		backgroundColor: '#9FE2FC',
 		height: 40,
 		marginTop: 10,
 		marginLeft: 20,
