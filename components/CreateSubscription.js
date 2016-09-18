@@ -50,7 +50,7 @@ export default class CreateSubscription extends Component {
 			delete this.state.startDateMM;
 			delete this.state.startDateDD;
 			delete this.state.startDateYYYY;
-    	return this.props.firebase.database().ref('subscriptions').push(this.state)
+    	return this.props.firebase.database().ref('subscriptions').push(this.state);
     })
     .then((res) => {
     	console.log(res)

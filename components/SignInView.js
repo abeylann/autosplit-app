@@ -18,6 +18,7 @@ import MaterialButton from './MaterialButton.js';
 import CreatePaymentView from './CreatePaymentView.js'
 import CreateSubscription from './CreateSubscription.js';
 
+
 export default class SignInView extends Component {
 	signInUser() {
 		this.props.firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
