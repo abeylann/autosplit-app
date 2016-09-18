@@ -16,7 +16,7 @@ import {
 
 import MaterialButton from './MaterialButton.js';
 import CreatePaymentView from './CreatePaymentView.js'
-import CreateSubscription from './CreateSubscription.js';
+import HomeNavigation from './HomeNavigation.js';
 
 
 export default class SignInView extends Component {
@@ -29,8 +29,9 @@ export default class SignInView extends Component {
 	  	const currentUserId = this.props.firebase.auth().currentUser.uid;
 			const user = res.val()[currentUserId];
 			if(user.hasOwnProperty('bankAccountToken')) {
-				this.props.navigator.push({name: 'CreateSubscription', component: CreateSubscription});
+				this.props.navigator.push({name: 'HomeNavigation', component: HomeNavigation});
 			} else {
+				console.log('not')
 				this.props.navigator.push({name: 'CreatePaymentView', component: CreatePaymentView});
 			}
 		})

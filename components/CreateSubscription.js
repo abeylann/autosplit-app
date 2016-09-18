@@ -38,9 +38,14 @@ export default class CreateSubscription extends Component {
 			if(this.state.isPaying) {
 				this.state.payer = currentUser.uid;
 				this.state.recipient = this.state.otherUserId;
+				this.state.needsApproval = false;
+				this.state.status = 'active';
 			} else {
 				this.state.recipient = currentUser.uid;
 				this.state.payer = this.state.otherUserId;
+				this.state.needsApproval = true;
+				this.state.approverId = this.state.otherUserId;
+				this.state.status = 'pending';
 			}
 			this.state.billStart = new Date(`${this.state.startDateMM}/${this.state.startDateDD}/${this.state.startDateYYYY}`)
 			delete this.state.otherUserId;
@@ -53,9 +58,26 @@ export default class CreateSubscription extends Component {
     	return this.props.firebase.database().ref('subscriptions').push(this.state);
     })
     .then((res) => {
+    	if(this.state.needsApproval) {
+    		return;
+    	}
+    	const transactions = {};
+    	const billStart = this.state.billStart;
+    	for(let i = 1; i<=this.state.numTimes; i++) {
+    		const newBillDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
+    		const newTransaction = {
+    			billAt: newBillDate,
+    			status: 'pending',
+    			subscriptionId: res.key
+    		}
+    		const key = this.props.firebase.database().ref().push().key; //gen new key
+    		transactions[key] = newTransaction;
+    	}
+    	return this.props.firebase.database().ref('transactions').update(transactions);
+    })
+    .then(res => {
+    	console.log('success!')
     	console.log(res)
-    	console.log(res.val())
-    	console.log('created!')
     })
     .catch(err => {
     	console.error(err)
