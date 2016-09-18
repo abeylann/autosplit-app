@@ -63,7 +63,7 @@ export default class CreateSubscription extends Component {
     	}
     	const transactions = {};
     	const billStart = this.state.billStart;
-    	for(let i = 1; i<=this.state.numTimes; i++) {
+    	for(let i = 0; i<this.state.numTimes; i++) {
     		const newBillDate = moment(billStart).add(this.state.frequencyNumber*i, this.state.frequencyUnit).toDate();
     		const newTransaction = {
     			billAt: newBillDate,
